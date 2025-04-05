@@ -5,10 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ToastAndroid,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../configs/FirebaseConfig"; // Firebase config dosyasının yolu
 
 const SignIn = () => {
   const router = useRouter();
@@ -34,12 +37,31 @@ const SignIn = () => {
     } else {
       await AsyncStorage.removeItem("savedPassword");
     }
-    console.log("Giriş yapıldı");
+
+    // Firebase Authentication ile giriş işlemi
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Giriş başarılı:", user.email);
+        ToastAndroid.show("Giriş başarılı!", ToastAndroid.SHORT);
+        router.push("/home"); // Başarılı giriş sonrası yönlendirme
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        // Firebase'den dönen hatalar
+        if (errorCode === 'auth/wrong-password') {
+          ToastAndroid.show("Şifre yanlış. Lütfen tekrar deneyin.", ToastAndroid.LONG);
+        } else if (errorCode === 'auth/user-not-found') {
+          ToastAndroid.show("Bu e-posta ile bir hesap bulunamadı.", ToastAndroid.LONG);
+        } else {
+          ToastAndroid.show(`Hata: ${errorMessage}`, ToastAndroid.LONG);
+        }
+      });
   };
 
   return (
-
-    
     <View style={styles.container}>
       <Text style={styles.title}>Giriş Yap</Text>
       <Text style={styles.subtitle}>Tekrar Hoş Geldiniz!</Text>
@@ -87,7 +109,7 @@ const SignIn = () => {
 
         <TouchableOpacity
           style={styles.forgotPasswordContainer}
-          onPress={() => console.log("Şifremi unuttum tıklandı")}
+          onPress={() => router.push("/auth/forgot-password")} // Yönlendirme burada
         >
           <Text style={styles.forgotPasswordText}>Şifremi Unuttum?</Text>
         </TouchableOpacity>

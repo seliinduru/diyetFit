@@ -1,12 +1,46 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid } from "react-native";
 import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from './../../../configs/FirebaseConfig';
 
 const SignUp = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const onCreateAccount = () => {
+    if (!email || !password || !confirmPassword) {
+      ToastAndroid.show("Lütfen tüm alanları doldurun.", ToastAndroid.LONG);
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      ToastAndroid.show("Şifreler uyuşmuyor!", ToastAndroid.LONG);
+      return;
+    }
+  
+    if (password.length < 6) {
+      ToastAndroid.show("Şifreniz en az 6 karakter olmalı.", ToastAndroid.LONG);
+      return;
+    }
+  
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Kayıt başarılı:", user.email);
+        ToastAndroid.show("Kayıt başarılı!", ToastAndroid.SHORT);
+        router.push("/auth/sign-in");
+      })
+      .catch((error) => {
+        console.error("Kayıt hatası:", error.message);
+        ToastAndroid.show(`Hata: ${error.message}`, ToastAndroid.LONG);
+      });
+  };
+  
+
+  
 
   return (
     <View style={styles.container}>
@@ -21,6 +55,7 @@ const SignUp = () => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
       />
 
       <Text style={styles.label}>Şifre</Text>
@@ -30,23 +65,23 @@ const SignUp = () => {
         placeholderTextColor="#aaa"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
+        secureTextEntry={true}
+        autoCapitalize="none"
+        autoCorrect={false}
       />
 
-      <Text style={styles.label}>Şifreyi Onayla</Text>
+      <Text style={styles.label}>Şifreyi Doğrula</Text>
       <TextInput
         style={styles.input}
         placeholder="Şifrenizi tekrar girin"
         placeholderTextColor="#aaa"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
-        secureTextEntry
+        secureTextEntry={true}
+        autoCapitalize="none"
       />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => console.log("Kayıt yapıldı")}
-      >
+      <TouchableOpacity style={styles.button} onPress={onCreateAccount}>
         <Text style={styles.buttonText}>Kayıt Ol</Text>
       </TouchableOpacity>
 
