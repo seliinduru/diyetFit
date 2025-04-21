@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: "#666",
+    color: "#666", 
     textAlign: "left",
     marginBottom: 20,
   },

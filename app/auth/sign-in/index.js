@@ -44,7 +44,7 @@ const SignIn = () => {
         const user = userCredential.user;
         console.log("Giriş başarılı:", user.email);
         ToastAndroid.show("Giriş başarılı!", ToastAndroid.SHORT);
-        router.push("/home"); // Başarılı giriş sonrası yönlendirme
+        router.push("/auth/home-page"); // Başarılı giriş sonrası yönlendirme
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -63,6 +63,7 @@ const SignIn = () => {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>Giriş Yap</Text>
       <Text style={styles.subtitle}>Tekrar Hoş Geldiniz!</Text>
 
