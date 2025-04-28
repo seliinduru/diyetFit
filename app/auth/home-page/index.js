@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons"; // 👈 ikonları ekledik
 
+
+
 export default function HomePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const router = useRouter();
@@ -34,14 +36,16 @@ export default function HomePage() {
       />
 
       <Text style={styles.welcomeText}>HOŞ GELDİN!</Text>
-      <Text style={styles.welcomeText2}>Sağlıklı bir sen için harika bir gün!💪</Text>
+      <Text style={styles.welcomeText2}>
+        Sağlıklı bir sen için harika bir gün!💪
+      </Text>
       <Text style={styles.welcomeText3}>Şimdi sana en uygun adımı seç.</Text>
       <Text style={styles.dateText}>{day}</Text>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/diyet-olustur")}
+          onPress={() => router.push("/auth/creat-diet")}
         >
           <Text style={styles.buttonText}>🥗 Diyet Oluştur</Text>
         </TouchableOpacity>
@@ -106,29 +110,37 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   welcomeText: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "#333",
-    marginTop: 100,
-    marginBottom: 5,
+    color: "#2e2e2e",
+    marginTop: 200,
+    marginBottom: 8,
+    textAlign: "center",
+    letterSpacing: 1,
   },
   welcomeText2: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: "600",
+    color: "#555",
     marginBottom: 5,
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
   welcomeText3: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    fontWeight: "500",
+    color: "#777",
+    marginBottom: 10,
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
   dateText: {
     fontSize: 16,
-    color: "#777",
+    color: "#999",
     marginBottom: 30,
+    textAlign: "center",
   },
+  
   buttonContainer: {
     width: "100%",
     alignItems: "center",

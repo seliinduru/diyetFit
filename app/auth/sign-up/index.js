@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ToastAndroid } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons"; // sadece icon kullanmak için import edildi
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from './../../../configs/FirebaseConfig';
 
@@ -38,12 +39,13 @@ const SignUp = () => {
         ToastAndroid.show(`Hata: ${error.message}`, ToastAndroid.LONG);
       });
   };
-  
-
-  
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={28} color="black" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Kayıt Ol</Text>
       <Text style={styles.subtitle}>DiyetFit'e hoş geldiniz!</Text>
 
@@ -91,6 +93,7 @@ const SignUp = () => {
       >
         <Text style={styles.signInText}>Zaten bir hesabın var mı? Giriş Yap</Text>
       </TouchableOpacity>
+      
     </View>
   );
 };
@@ -101,6 +104,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 1,
   },
   title: {
     fontSize: 26,

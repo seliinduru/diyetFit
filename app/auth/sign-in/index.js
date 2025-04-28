@@ -64,6 +64,11 @@ const SignIn = () => {
   return (
     <View style={styles.container}>
       
+      {/* Geri tuşu */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={28} color="#000" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Giriş Yap</Text>
       <Text style={styles.subtitle}>Tekrar Hoş Geldiniz!</Text>
 
@@ -137,11 +142,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
   },
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 1,
+  },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     textAlign: "left",
     marginBottom: 10,
+    marginTop: 100, // Geri tuşa çakışmaması için
   },
   subtitle: {
     fontSize: 18,
@@ -210,9 +222,10 @@ const styles = StyleSheet.create({
     marginLeft: 140,
   },
   forgotPasswordText: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#1e90ff",
     textDecorationLine: "underline",
+    marginLeft: -25,
   },
   button: {
     backgroundColor: "#f7931a",
