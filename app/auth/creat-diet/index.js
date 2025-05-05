@@ -7,6 +7,9 @@ import {
   StyleSheet,
   ScrollView,
   Animated,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -61,7 +64,14 @@ const questions = [
   },
   {
     question: "Günde kaç öğün yemek istersiniz? 🍽️",
-    options: ["3 Ana Öğün 🍽️", "3 Ana + 2 Ara Öğün 🍴", "5-6 küçük öğün 🍱"],
+    options: [
+      "1 Ana Öğün 🍽️", 
+      "2 Ana Öğün 🍽️", 
+      "2 Ana + 1 Ara Öğün 🍴", 
+      "3 Ana Öğün 🍽️", 
+      "3 Ana + 2 Ara Öğün 🍴", 
+      "5-6 küçük öğün 🍱"
+    ],
     type: "select",
   },
   {
@@ -92,7 +102,6 @@ const DietPlan = () => {
       updatedAnswers[currentQuestionIndex] = currentInput;
     }
     setAnswers(updatedAnswers);
-
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setCurrentInput(updatedAnswers[currentQuestionIndex + 1] || "");
@@ -149,95 +158,129 @@ const DietPlan = () => {
   const progress = (currentQuestionIndex + 1) / questions.length;
 
   return (
-    <View style={styles.container}>
-      {/* Scroll progress bar */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>{Math.round(progress * 100)}%</Text>
-        <View style={styles.progressBarBackground}>
-          <Animated.View
-            style={[styles.progressBar, { width: `${progress * 100}%` }]}
-          />
-        </View>
-      </View>
-
-      <Text style={styles.progress}>
-        {currentQuestionIndex + 1}/{questions.length}
-      </Text>
-
-      <Animated.View style={{ opacity: fadeAnim }}>
-        <Text style={styles.question}>{currentQuestion.question}</Text>
-      </Animated.View>
-
-      {currentQuestion.type === "input" ? (
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          placeholder="Cevabınızı yazın"
-          value={currentInput}
-          onChangeText={setCurrentInput}
-        />
-      ) : (
-        <ScrollView contentContainerStyle={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = answers[currentQuestionIndex] === option;
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.optionButton,
-                  isSelected && styles.selectedOption,
-                ]}
-                onPress={() => handleOptionSelect(option)}
-              >
-                <Animated.View
-                  style={[
-                    styles.optionContent,
-                    { transform: [{ scale: scaleAnim }] }, // Apply scale animation
-                  ]}
-                >
-                  <View
-                    style={[styles.circle, isSelected && styles.selectedCircle]}
-                  >
-                    {isSelected && <Text style={styles.checkmark}>✓</Text>}
-                  </View>
-                  <Text style={styles.optionText}>{option}</Text>
-                </Animated.View>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      )}
-
-      <View style={styles.buttonContainer}>
-        {currentQuestionIndex > 0 && (
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.buttonText}>← Geri</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.buttonText}>
-            {currentQuestionIndex === questions.length - 1
-              ? "Bitir ✓"
-              : "İleri →"}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView 
+        style={styles.keyboardAvoid} 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        {/* Fixed header with progress bar */}
+        <View style={styles.header}>
+          <View style={styles.progressContainer}>
+            <Text style={styles.progressText}>{Math.round(progress * 100)}%</Text>
+            <View style={styles.progressBarBackground}>
+              <Animated.View
+                style={[styles.progressBar, { width: `${progress * 100}%` }]}
+              />
+            </View>
+          </View>
+          <Text style={styles.progress}>
+            {currentQuestionIndex + 1}/{questions.length}
           </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        </View>
+
+        {/* Scrollable content area */}
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={{ opacity: fadeAnim }}>
+            <Text style={styles.question}>{currentQuestion.question}</Text>
+          </Animated.View>
+          
+          {currentQuestion.type === "input" ? (
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="Cevabınızı yazın"
+              value={currentInput}
+              onChangeText={setCurrentInput}
+            />
+          ) : (
+            <View style={styles.optionsContainer}>
+              {currentQuestion.options.map((option, index) => {
+                const isSelected = answers[currentQuestionIndex] === option;
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.optionButton,
+                      isSelected && styles.selectedOption,
+                    ]}
+                    onPress={() => handleOptionSelect(option)}
+                  >
+                    <Animated.View
+                      style={[
+                        styles.optionContent,
+                        { transform: [{ scale: isSelected ? scaleAnim : 1 }] },
+                      ]}
+                    >
+                      <View
+                        style={[styles.circle, isSelected && styles.selectedCircle]}
+                      >
+                        {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
+                      <Text style={styles.optionText}>{option}</Text>
+                    </Animated.View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Fixed footer with navigation buttons */}
+        <View style={styles.footer}>
+          <View style={styles.buttonContainer}>
+            {currentQuestionIndex > 0 ? (
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Text style={styles.buttonText}>← Geri</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.emptyButton} />
+            )}
+            <TouchableOpacity 
+              style={styles.nextButton} 
+              onPress={handleNext}
+              disabled={currentQuestion.type === "input" && !currentInput}
+            >
+              <Text style={styles.buttonText}>
+                {currentQuestionIndex === questions.length - 1
+                  ? "Bitir ✓"
+                  : "İleri →"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#fff8f0",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: "#fff8f0",
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0e0d0",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    zIndex: 10,
   },
   progressContainer: {
     width: "100%",
-    marginTop: 10,
-    marginBottom: 20,
     alignItems: "center",
   },
   progressText: {
@@ -259,56 +302,79 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progress: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#ff8c00",
-    marginBottom: 10,
+    marginTop: 5,
+    textAlign: "center",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
   },
   question: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
+    lineHeight: 32,
   },
   input: {
     borderWidth: 1,
     borderColor: "#ff8c00",
-    padding: 12,
-    borderRadius: 8,
+    padding: 15,
+    borderRadius: 12,
     width: "100%",
     backgroundColor: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 20,
+    elevation: 1,
+    shadowColor: "#ff8c00",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   optionsContainer: {
     width: "100%",
     alignItems: "center",
-    flexGrow: 1,
-    justifyContent: "center",
+    paddingBottom: 20,
   },
   optionButton: {
     backgroundColor: "#ffa726",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 12,
     marginVertical: 8,
-    width: 300,
+    width: "100%",
+    maxWidth: 320,
     alignItems: "flex-start",
+    elevation: 2,
+    shadowColor: "#ff8c00",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   selectedOption: {
     backgroundColor: "#fb8c00",
+    borderWidth: 2,
+    borderColor: "#e65100",
   },
   optionContent: {
     flexDirection: "row",
     alignItems: "center",
+    width: "100%",
   },
   circle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 2,
     borderColor: "white",
-    marginRight: 12,
+    marginRight: 15,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -323,28 +389,49 @@ const styles = StyleSheet.create({
   optionText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "500",
+    flex: 1,
+  },
+  footer: {
+    backgroundColor: "#fff8f0",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#f0e0d0",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   buttonContainer: {
     flexDirection: "row",
-    marginTop: 20,
     width: "100%",
     justifyContent: "space-between",
   },
   backButton: {
     backgroundColor: "#e64a19",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 25,
-    borderRadius: 8,
+    borderRadius: 12,
+    minWidth: 120,
+    alignItems: "center",
+  },
+  emptyButton: {
+    minWidth: 120,
   },
   nextButton: {
     backgroundColor: "#ff8c00",
-    paddingVertical: 12,
+    paddingVertical: 15,
     paddingHorizontal: 25,
-    borderRadius: 8,
+    borderRadius: 12,
+    minWidth: 120,
+    alignItems: "center",
   },
   buttonText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
